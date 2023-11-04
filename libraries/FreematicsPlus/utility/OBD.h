@@ -52,6 +52,16 @@
 #define PID_ENGINE_REF_TORQUE 0x63
 #define PID_ODOMETER 0xA6
 
+// Added Config for VAG
+#define PID_IAT_SENSOR 0x68
+#define PID_EGT_BANK1 0x78
+#define PID_EGT_BANK2 0x79
+#define PID_TURBO_PRESSURE1 0x75
+#define PID_TURBO_PRESSURE2 0x76
+#define PID_DPF_DIFFERENTIAL_PRESSURE 0x7A
+#define PID_DPF 0x7B
+#define PID_DPF_TEMP 0x7C
+
 typedef enum {
     PROTO_AUTO = 0x0,
     PROTO_ISO_9141_2 = 0x3,

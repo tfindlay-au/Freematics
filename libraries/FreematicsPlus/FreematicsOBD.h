@@ -10,8 +10,8 @@
 
 #include "utility/OBD.h"
 
-#define OBD_TIMEOUT_SHORT 1000 /* ms */
-#define OBD_TIMEOUT_LONG 10000 /* ms */
+#define OBD_TIMEOUT_SHORT 10000 /* ms */
+#define OBD_TIMEOUT_LONG 100000 /* ms */
 
 int dumpLine(char* buffer, int len);
 uint16_t hex2uint16(const char *p);
@@ -74,6 +74,7 @@ protected:
 	uint16_t getLargeValue(char* data);
 	uint8_t getSmallValue(char* data);
 	int16_t getTemperatureValue(char* data);
+  int16_t getExhaustGasTemp(char* data);
 	int normalizeData(byte pid, char* data);
 	byte checkErrorMessage(const char* buffer);
 	char* getResultValue(char* buf);

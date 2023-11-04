@@ -167,9 +167,9 @@ int COBD::normalizeData(byte pid, char* data)
 	case PID_EVAP_SYS_VAPOR_PRESSURE: // kPa
 		result = getLargeValue(data) >> 2;
 		break;
-	case PID_FUEL_PRESSURE: // kPa
-		result = getSmallValue(data) * 3;
-		break;
+//	case PID_FUEL_PRESSURE: // kPa
+//		result = getSmallValue(data) * 3;
+//		break;
 	case PID_COOLANT_TEMP:
 	case PID_INTAKE_TEMP:
 	case PID_AMBIENT_TEMP:
@@ -243,6 +243,20 @@ int COBD::normalizeData(byte pid, char* data)
 		else
 			result = (uint32_t)hex2uint8(data) << 24 | (uint32_t)hex2uint8(data + 3) << 16 | (uint32_t)hex2uint8(data + 6) << 8 | hex2uint8(data + 9);
 		break;
+  case PID_IAT_SENSOR:    // 3 bytes -40~215 supports 2 sensors
+    result = getTemperatureValue(data);
+    break;
+  case PID_EGT_BANK1:     // 9 bytes special PID
+    result = getExhaustGasTemp(data);
+    break;
+  case PID_EGT_BANK2:     // 9 bytes special PID
+    result = getExhaustGasTemp(data);
+    break;
+  case PID_TURBO_PRESSURE1:           // 7 bytes
+  case PID_TURBO_PRESSURE2:           // 7 bytes
+  case PID_DPF_DIFFERENTIAL_PRESSURE: // 7 bytes
+  case PID_DPF:                       // 7 bytes
+  case PID_DPF_TEMP:                  // 9 bytes
 	default:
 		result = getSmallValue(data);
 	}
@@ -462,6 +476,42 @@ uint8_t COBD::getSmallValue(char* data)
 int16_t COBD::getTemperatureValue(char* data)
 {
   return (int)hex2uint8(data) - 40;
+}
+
+int16_t COBD::getExhaustGasTemp(char* data)
+{
+  // First byte is bit encoded
+  char supported = *data;
+  data++; // Data just contains 8 bytes, potentially 4 values
+
+  // The first byte indicates if an EGT sensor is supported
+  // bit 0 = EGT sensor 1 supported
+  // bit 1 = EGT sensor 2 supported
+  // bit 2 = EGT sensor 3 supported
+  // bit 3 = EGT sensor 4 supported
+  for(int i=3; i >= 0; i--) {
+
+    // Read 2 bytes (16 bit) value
+    int16_t *sensorValue = (int16_t *)data;
+
+    // Check if the bit is enabled..
+    if((supported & (1 << i)) != 0) {
+      Serial.println("[FreematicOBD.cpp] EGT Sensor ");
+      Serial.println(i);
+      Serial.println(" is supported with ");
+      Serial.println((int)sensorValue - 40);
+      Serial.println("\n");
+      return (int)sensorValue - 40;
+    } else {
+      Serial.println("[FreematicOBD.cpp] EGT Sensor");
+      Serial.println(i);
+      Serial.println(" is not supported\n");
+    }
+
+    // shift to 2-bytes for the next sensor value
+    sensorValue++; // Increment the pointer by 2
+  }
+  return -1;
 }
 
 void COBD::setHeaderID(uint32_t num)

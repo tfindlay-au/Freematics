@@ -31,7 +31,7 @@
 #include "soc/sens_reg.h"
 #endif
 
-#define VERBOSE_LINK 0
+#define VERBOSE_LINK 1
 #define VERBOSE_XBEE 0
 
 static TinyGPS gps;
@@ -269,18 +269,38 @@ int CLink_UART::receive(char* buffer, int bufsize, unsigned int timeout)
 	unsigned long elapsed;
 	for (;;) {
 		elapsed = millis() - startTime;
+		// If takes too long, bail out
 		if (elapsed > timeout) break;
+
+		// If we got too much data, bail out
 		if (n >= bufsize - 1) break;
+
 		int len = uart_read_bytes(LINK_UART_NUM, (uint8_t*)buffer + n, bufsize - n - 1, 1);
+
+    // If read failed, bail out
 		if (len < 0) break;
+
+		// If we got nothing, try again
 		if (len == 0) continue;
+
 		buffer[n + len] = 0;
 		if (strstr(buffer + n, "\r>")) {
 			n += len;
 			break;
 		}
+
+    // Gobble up messages like "SEARCHING..."
 		n += len;
 		if (strstr(buffer, "...")) {
+#if VERBOSE_LINK
+      Serial.print("[UART TIMEOUT] Waited:");
+      Serial.print(timeout);
+      Serial.print(" got:");
+      Serial.print(n);
+      Serial.print(" bytes:");
+      Serial.println(buffer);
+#endif
+
 			buffer[0] = 0;
 			n = 0;
 			timeout += OBD_TIMEOUT_LONG;
