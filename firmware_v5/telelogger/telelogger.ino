@@ -54,10 +54,20 @@ PID_POLLING_INFO obdData[]= {
   {PID_RPM, 1},
   {PID_THROTTLE, 1},
   {PID_ENGINE_LOAD, 1},
-  {PID_FUEL_PRESSURE, 2},
-  {PID_TIMING_ADVANCE, 2},
+//   {PID_FUEL_PRESSURE, 2},    <-- Returns NO DATA causing OBD timeout
+//  {PID_TIMING_ADVANCE, 2},    <-- Returns NO DATA causing OBD timeout
   {PID_COOLANT_TEMP, 3},
   {PID_INTAKE_TEMP, 3},
+
+  // Tim's PID's of interest
+//   {PID_IAT_SENSOR, 3},     <-- Returns NO DATA causing OBD timeout
+   {PID_EGT_BANK1, 3},
+   {PID_EGT_BANK2, 3},
+   {PID_TURBO_PRESSURE1, 3},
+   {PID_TURBO_PRESSURE2, 3},
+//   {PID_DPF_DIFFERENTIAL_PRESSURE, 4}
+//   {PID_DPF, 4}
+//   {PID_DPF_TEMP, 4}
 };
 
 CBufferManager bufman;

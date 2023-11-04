@@ -167,9 +167,9 @@ int COBD::normalizeData(byte pid, char* data)
 	case PID_EVAP_SYS_VAPOR_PRESSURE: // kPa
 		result = getLargeValue(data) >> 2;
 		break;
-//	case PID_FUEL_PRESSURE: // kPa
-//		result = getSmallValue(data) * 3;
-//		break;
+	case PID_FUEL_PRESSURE: // kPa
+		result = getSmallValue(data) * 3;
+		break;
 	case PID_COOLANT_TEMP:
 	case PID_INTAKE_TEMP:
 	case PID_AMBIENT_TEMP:
@@ -480,6 +480,10 @@ int16_t COBD::getTemperatureValue(char* data)
 
 int16_t COBD::getExhaustGasTemp(char* data)
 {
+  // Got 69 06 43 06 00 00 00 0F 06 A1 06
+
+  69 = 0110 1001
+
   // First byte is bit encoded
   char supported = *data;
   data++; // Data just contains 8 bytes, potentially 4 values
@@ -496,16 +500,15 @@ int16_t COBD::getExhaustGasTemp(char* data)
 
     // Check if the bit is enabled..
     if((supported & (1 << i)) != 0) {
-      Serial.println("[FreematicOBD.cpp] EGT Sensor ");
-      Serial.println(i);
-      Serial.println(" is supported with ");
+      Serial.print("[FreematicOBD.cpp] EGT Sensor ");
+      Serial.print(i);
+      Serial.print(" is supported with ");
       Serial.println((int)sensorValue - 40);
-      Serial.println("\n");
       return (int)sensorValue - 40;
     } else {
-      Serial.println("[FreematicOBD.cpp] EGT Sensor");
-      Serial.println(i);
-      Serial.println(" is not supported\n");
+      Serial.print("[FreematicOBD.cpp] EGT Sensor");
+      Serial.print(i);
+      Serial.println(" is not supported");
     }
 
     // shift to 2-bytes for the next sensor value
